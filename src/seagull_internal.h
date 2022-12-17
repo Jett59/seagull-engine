@@ -6,7 +6,7 @@
 
 namespace seagull {
 struct GameContext {
-  GLFWwindow *window;
+  GLFWwindow *window = nullptr;
 };
 } // namespace seagull
 
