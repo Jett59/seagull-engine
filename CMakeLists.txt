@@ -12,3 +12,5 @@ add_library(seagull src/seagull.cpp)
 target_link_libraries(seagull PRIVATE ${CONAN_LIBS})
 target_include_directories(seagull PUBLIC "${CMAKE_SOURCE_DIR}/include")
 target_include_directories(seagull PRIVATE "${CMAKE_SOURCE_DIR}/src")
+
+add_subdirectory(example-projects)
