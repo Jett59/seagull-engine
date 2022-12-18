@@ -8,20 +8,27 @@ namespace seagull {
 /**
  * @brief the opaque struct which holds the game context
  *
- * @note this struct is defined in <seagull.h> (which is only visible to the
- * seagull library)
+ * @note this struct is defined in <seagull_internal.h> (which is only visible
+ * to the seagull library)
  *
  * @note we keep this as an opaque struct so as to make it possible to change
  * the core implementation without breaking the API
  */
 struct GameContext;
 
+/**
+ * @brief the main game class
+ *
+ * @note there may only be one instance of this class at a time. If there are
+ * multiple at once you are in big trouble.
+ */
 class Game {
 private:
   std::unique_ptr<GameContext> gameContext;
 
 public:
   Game();
+  ~Game();
 
   /**
    * @brief run the game
