@@ -1,3 +1,4 @@
+#include <Eigen/Dense>
 #include <iostream>
 #include <seagull_internal.h>
 #include <stdexcept>
@@ -47,11 +48,26 @@ void Game::run(const std::string &title, int width, int height) {
   glfwMakeContextCurrent(window);
   glfwSwapInterval(1); // Vsync
   glfwShowWindow(window);
+  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+  // Set up the matrices and what not.
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glOrtho(0.0, width, height, 0.0, 0.0, 1.0);
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  glViewport(0, 0, width, height);
+
+  glEnable(GL_BLEND);
+  glEnable(GL_DEPTH_TEST);
 
   while (!glfwWindowShouldClose(window)) {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glfwPollEvents();
     glfwSwapBuffers(window);
     // TODO: call some sort of update function
+    // For now just draw a simple triangle.
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    
   }
 }
 } // namespace seagull
