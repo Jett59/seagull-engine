@@ -70,9 +70,12 @@ void Game::run(const std::string &title, int width, int height) {
   // TODO: replace with a proper object system.
   // Create a triangle to show as a hello world.
   float vertices[] = {
-      -0.5f, -0.5f, -0.5f, // left
-      0.5f,  -0.5f, -0.5f, // right
-      0.0f,  0.5f,  -0.5f  // top
+      -0.5f, -0.433,
+      -0.5f, // left
+      0.5f,  -0.433f,
+      -0.5f, // right
+      0.0f,  0.433f,
+      -0.5f // top
   };
   unsigned int VBO, VAO;
   glGenVertexArrays(1, &VAO);
