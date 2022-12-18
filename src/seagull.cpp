@@ -70,9 +70,9 @@ void Game::run(const std::string &title, int width, int height) {
   // TODO: replace with a proper object system.
   // Create a triangle to show as a hello world.
   float vertices[] = {
-      -0.5f, -0.5f, 0.0f, // left
-      0.5f,  -0.5f, 0.0f, // right
-      0.0f,  0.5f,  0.0f  // top
+      -0.5f, -0.5f, -0.5f, // left
+      0.5f,  -0.5f, -0.5f, // right
+      0.0f,  0.5f,  -0.5f  // top
   };
   unsigned int VBO, VAO;
   glGenVertexArrays(1, &VAO);
@@ -100,14 +100,25 @@ void Game::run(const std::string &title, int width, int height) {
     Eigen::Matrix4f model;
     model << std::cos(radians), -std::sin(radians), 0, 0, std::sin(radians),
         std::cos(radians), 0, 0, 0, 0, 1, 0, 0, 0, 0, 1;
-        // Translate it to the right.
-        model(0, 3) = 0.5;
     shaders->setUniformMatrix4("model", model);
-    shaders->setUniformMatrix4("view", Eigen::Matrix4f::Identity());
-    shaders->setUniformMatrix4("projection", Eigen::Matrix4f::Identity());
+    // Translate to the right.
+    Eigen::Matrix4f view;
+    view << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0.5, 0, 0, 1;
+    shaders->setUniformMatrix4("view", view);
+    // Use the projection matrix to pretend that the width and height are the
+    // same (to avoid wierd) scaling issues).
+    Eigen::Matrix4f projection;
+    static constexpr float fov = 45.0f;
+    static constexpr float near = 0.1f;
+    static constexpr float far = 100.0f;
+    float aspect = (float)width / (float)height;
+    float tanHalfFov = 1.0f / std::tan(fov / 2.0f);
+    projection << 1.0f / (aspect * tanHalfFov), 0, 0, 0, 0, 1.0f / tanHalfFov,
+        0, 0, 0, 0, -(far + near) / (far - near),
+        -(2 * far * near) / (far - near), 0, 0, -1, 0;
+    shaders->setUniformMatrix4("projection", projection);
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
-    // Q: Why isn't it drawing?
   }
 }
 } // namespace seagull
