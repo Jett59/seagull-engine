@@ -1,4 +1,5 @@
 #include <Eigen/Dense>
+#include <cmath>
 #include <iostream>
 #include <seagull_internal.h>
 #include <stdexcept>
@@ -84,12 +85,24 @@ void Game::run(const std::string &title, int width, int height) {
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
 
+  double angle = 0;
+
   while (!glfwWindowShouldClose(window)) {
     glfwSwapBuffers(window);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glfwPollEvents();
     // TODO: replace with a proper object system.
-    shaders->setUniformMatrix4("model", Eigen::Matrix4f::Identity());
+    // Set the model matrix with a rotation.
+    angle = angle + 1 > 360 ? 0 : angle + 1;
+    // We have to convert the angle to radians.
+    static constexpr double PI = 3.14159265358979323846;
+    double radians = angle * PI / 180;
+    Eigen::Matrix4f model;
+    model << std::cos(radians), -std::sin(radians), 0, 0, std::sin(radians),
+        std::cos(radians), 0, 0, 0, 0, 1, 0, 0, 0, 0, 1;
+        // Translate it to the right.
+        model(0, 3) = 0.5;
+    shaders->setUniformMatrix4("model", model);
     shaders->setUniformMatrix4("view", Eigen::Matrix4f::Identity());
     shaders->setUniformMatrix4("projection", Eigen::Matrix4f::Identity());
     glBindVertexArray(VAO);
