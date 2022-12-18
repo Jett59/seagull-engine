@@ -1,3 +1,4 @@
+#include <iostream>
 #include <shaders.h>
 
 namespace seagull {
@@ -41,12 +42,15 @@ static const char *defaultVertexShader = R"(
 layout (location = 0) in vec3 position;
 // layout (location = 1) in vec2 textureCoordinate; // TODO
 
-uniform mat4 modelMatrix;
-uniform mat4 viewMatrix;
-uniform mat4 projectionMatrix;
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+
+// out vec2 textureCoordinate; // TODO
 
 void main() {
-  gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.0);
+  gl_Position = projection * view * model * vec4(position, 1.0f);
+  // textureCoordinate = textureCoordinate; // TODO
 }
 )";
 
@@ -63,4 +67,9 @@ void main() {
 )";
 
 Shaders::Shaders() : Shaders(defaultVertexShader, defaultFragmentShader) {}
+
+Shaders::~Shaders() {
+  glUseProgram(0);
+  glDeleteProgram(shaderProgram);
+}
 } // namespace seagull

@@ -46,28 +46,55 @@ void Game::run(const std::string &title, int width, int height) {
     throw std::runtime_error("Failed to create window");
   }
   glfwMakeContextCurrent(window);
+  // We have to do this here to make sure we have a valid OpenGL context.
+  // Otherwise GLEW complains rather a lot.
+  auto glewInitResult = glewInit();
+  if (glewInitResult != GLEW_OK) {
+    throw std::runtime_error(
+        "Failed to initialize GLEW: " +
+        std::string((char *)glewGetErrorString(glewInitResult)));
+  }
+
   glfwSwapInterval(1); // Vsync
   glfwShowWindow(window);
-  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-  // Set up the matrices and what not.
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glOrtho(0.0, width, height, 0.0, 0.0, 1.0);
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
   glViewport(0, 0, width, height);
 
   glEnable(GL_BLEND);
   glEnable(GL_DEPTH_TEST);
 
+  std::unique_ptr<Shaders> &shaders = gameContext->shaders;
+  shaders = std::make_unique<Shaders>();
+  shaders->use();
+
+  // TODO: replace with a proper object system.
+  // Create a triangle to show as a hello world.
+  float vertices[] = {
+      -0.5f, -0.5f, 0.0f, // left
+      0.5f,  -0.5f, 0.0f, // right
+      0.0f,  0.5f,  0.0f  // top
+  };
+  unsigned int VBO, VAO;
+  glGenVertexArrays(1, &VAO);
+  glGenBuffers(1, &VBO);
+  glBindVertexArray(VAO);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+  glEnableVertexAttribArray(0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindVertexArray(0);
+
   while (!glfwWindowShouldClose(window)) {
+    glfwSwapBuffers(window);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glfwPollEvents();
-    glfwSwapBuffers(window);
-    // TODO: call some sort of update function
-    // For now just draw a simple triangle.
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-    
+    // TODO: replace with a proper object system.
+    shaders->setUniformMatrix4("model", Eigen::Matrix4f::Identity());
+    shaders->setUniformMatrix4("view", Eigen::Matrix4f::Identity());
+    shaders->setUniformMatrix4("projection", Eigen::Matrix4f::Identity());
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    // Q: Why isn't it drawing?
   }
 }
 } // namespace seagull

@@ -19,23 +19,27 @@ public:
   ~Shaders();
 
   void use() { glUseProgram(shaderProgram); }
-  void setUniform(const std::string &name, float value) {
+  void setUniformFloat(const std::string &name, float value) {
     glUniform1f(getUniformLocation(name), value);
   }
-  void setUniform(const std::string &name, int value) {
+  void setUniformInt(const std::string &name, int value) {
     glUniform1i(getUniformLocation(name), value);
   }
-  void setUniform(const std::string &name, const Eigen::Vector3f &value) {
+  void setUniformVector3(const std::string &name,
+                         const Eigen::Vector3f &value) {
     glUniform3f(getUniformLocation(name), value.x(), value.y(), value.z());
   }
-  void setUniform(const std::string &name, const Eigen::Vector4f &value) {
+  void setUniformVector4(const std::string &name,
+                         const Eigen::Vector4f &value) {
     glUniform4f(getUniformLocation(name), value.x(), value.y(), value.z(),
                 value.w());
   }
-  void setUniform(const std::string &name, const Eigen::Matrix3f &value) {
+  void setUniformMatrix3(const std::string &name,
+                         const Eigen::Matrix3f &value) {
     glUniformMatrix3fv(getUniformLocation(name), 1, GL_FALSE, value.data());
   }
-  void setUniform(const std::string &name, const Eigen::Matrix4f &value) {
+  void setUniformMatrix4(const std::string &name,
+                         const Eigen::Matrix4f &value) {
     glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, value.data());
   }
 
