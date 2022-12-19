@@ -14,16 +14,16 @@ struct GameObjectState {
   unsigned vertexVbo;
   unsigned indexVbo;
   unsigned textureVbo;
-  unsigned texture;
+  unsigned textureId;
 
   Mesh mesh;
   Texture texture;
 
   // Caching these values has no downside, so we do that.
-  Eigen::Matrix4cf totalTransformationMatrix;
-  Eigen::Matrix4f scaleMatrix;
-  Eigen::Matrix4f rotationMatrix;
-  Eigen::Matrix4f translationMatrix;
+  Eigen::Matrix4cf totalTransformationMatrix = Eigen::Matrix4cf::Identity();
+  Eigen::Matrix4f scaleMatrix = Eigen::Matrix4f::Identity();
+  Eigen::Matrix4f rotationMatrix = Eigen::Matrix4f::Identity();
+  Eigen::Matrix4f translationMatrix = Eigen::Matrix4f::Identity();
 
   // The following are able to improve performance for continuous
   // transformations (e.g. something moving forwards at some speed), however it
@@ -36,9 +36,9 @@ struct GameObjectState {
   std::optional<Eigen::Matrix4f> translateRotateMatrix;
   std::optional<Eigen::Matrix4f> translateScaleMatrix;
 
-  float scale;
-  Eigen::Vector3f rotation;
-  Eigen::Vector3f translation;
+  float scale = 1;
+  Eigen::Vector3f rotation = Eigen::Vector3f::Zero();
+  Eigen::Vector3f translation = Eigen::Vector3f::Zero();
 };
 } // namespace seagull
 

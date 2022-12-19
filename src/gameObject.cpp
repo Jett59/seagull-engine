@@ -1,1 +1,103 @@
+#include <cassert>
 #include <gameObject_internal.h>
+
+namespace seagull {
+void BuildBuffers(const Mesh &mesh, const Texture &texture, unsigned vertexVbo,
+                  unsigned textureVbo, unsigned indexVbo) {
+  std::vector<float> vertices;
+  std::vector<float> textureCoordinates;
+  std::vector<unsigned> indices;
+  // To save on space, we don't store duplicate vertices. That is why we have
+  // this index vbo: to specify the indices of each vertex.
+  assert(mesh.size() == texture.size());
+  for (size_t i = 0; i < mesh.size(); i++) {
+    const Triangle3d &meshTriangle = mesh[i];
+    const Triangle2d &textureTriangle = texture[i];
+    // Unfortunately, there is no way to iterate through the points of a
+    // triangle. We'll just create an array and iterate through that.
+    const Point3d meshPoints[3] = {meshTriangle.a, meshTriangle.b,
+                                   meshTriangle.c};
+    const Point2d texturePoints[3] = {textureTriangle.a, textureTriangle.b,
+                                      textureTriangle.c};
+    for (size_t pointIndex = 0; pointIndex < 3; pointIndex++) {
+      const Point3d &meshPoint = meshPoints[pointIndex];
+      const Point2d &texturePoint = texturePoints[pointIndex];
+      // If there is already an identical vertex/texture coordinate combination,
+      // we can just use that index. Otherwise, we'll add a new vertex/texture
+      // coordinate combination.
+      bool found = false;
+      for (size_t j = 0; j < vertices.size() / 3; j++) {
+        if (vertices[j * 3] == meshPoint.x &&
+            vertices[j * 3 + 1] == meshPoint.y &&
+            vertices[j * 3 + 2] == meshPoint.z &&
+            textureCoordinates[j * 2] == texturePoint.x &&
+            textureCoordinates[j * 2 + 1] == texturePoint.y) {
+          indices.push_back(j);
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        vertices.push_back(meshPoint.x);
+        vertices.push_back(meshPoint.y);
+        vertices.push_back(meshPoint.z);
+        textureCoordinates.push_back(texturePoint.x);
+        textureCoordinates.push_back(texturePoint.y);
+        indices.push_back(indices.size());
+      }
+    }
+  }
+  // Now that we have the vertices, texture coordinates, and indices, we can
+  // build the buffers. This is the easy bit.
+  glBindBuffer(GL_ARRAY_BUFFER, vertexVbo);
+  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float),
+               vertices.data(), GL_STATIC_DRAW);
+  glBindBuffer(GL_ARRAY_BUFFER, textureVbo);
+  glBufferData(GL_ARRAY_BUFFER, textureCoordinates.size() * sizeof(float),
+               textureCoordinates.data(), GL_STATIC_DRAW);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVbo);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned),
+               indices.data(), GL_STATIC_DRAW);
+}
+
+GameObject::GameObject(TexturedMesh mesh)
+    : state(std::make_unique<GameObjectState>()) {
+  state->mesh = std::move(mesh.mesh);
+  state->texture = std::move(mesh.texture);
+  unsigned &vao = state->vao;
+  unsigned &vertexVbo = state->vertexVbo;
+  unsigned &indexVbo = state->indexVbo;
+  unsigned &textureVbo = state->textureVbo;
+  glGenVertexArrays(1, &vao);
+  glGenBuffers(1, &vertexVbo);
+  glGenBuffers(1, &indexVbo);
+  glGenBuffers(1, &textureVbo);
+  glBindVertexArray(vao);
+  BuildBuffers(state->mesh, state->texture, vertexVbo, textureVbo, indexVbo);
+  glBindBuffer(GL_ARRAY_BUFFER, vertexVbo);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+  glEnableVertexAttribArray(0);
+  glBindBuffer(GL_ARRAY_BUFFER, textureVbo);
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+  glEnableVertexAttribArray(1);
+  glBindVertexArray(0);
+  // We also have to build the texture.
+  unsigned &textureId = state->textureId;
+  glGenTextures(1, &textureId);
+  glBindTexture(GL_TEXTURE_2D, textureId);
+  const Image &image = state->texture.getImage();
+  // This code will not work if the color struct has padding. This is because it
+  // uploads the floats to the GPU as an array of floats, which means our color
+  // struct must also be an array of floats (or equivalent to one).
+  static_assert(sizeof(Color) == 4 * sizeof(float),
+                "Color struct must be 4 packed floats");
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width, image.height, 0, GL_RGBA,
+               GL_FLOAT, image.pixels.data());
+  glGenerateMipmap(GL_TEXTURE_2D);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                  GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}
+} // namespace seagull
