@@ -90,6 +90,18 @@ void Game::run(const std::string &title, int width, int height) {
 
   double angle = 0;
 
+  // TODO: Pull out into a separate function.
+  Eigen::Matrix4f projection;
+  static constexpr float fov = 45.0f;
+  static constexpr float near = 0.1f;
+  static constexpr float far = 100.0f;
+  float aspect = (float)width / (float)height;
+  float tanHalfFov = 1.0f / std::tan(fov / 2.0f);
+  projection << 1.0f / (aspect * tanHalfFov), 0, 0, 0, 0, 1.0f / tanHalfFov, 0,
+      0, 0, 0, -(far + near) / (far - near), -(2 * far * near) / (far - near),
+      0, 0, -1, 0;
+  shaders->setUniformMatrix4("projection", projection);
+
   while (!glfwWindowShouldClose(window)) {
     glfwSwapBuffers(window);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -108,18 +120,6 @@ void Game::run(const std::string &title, int width, int height) {
     Eigen::Matrix4f view;
     view << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0.5, 0, 0, 1;
     shaders->setUniformMatrix4("view", view);
-    // Use the projection matrix to pretend that the width and height are the
-    // same (to avoid wierd) scaling issues).
-    Eigen::Matrix4f projection;
-    static constexpr float fov = 45.0f;
-    static constexpr float near = 0.1f;
-    static constexpr float far = 100.0f;
-    float aspect = (float)width / (float)height;
-    float tanHalfFov = 1.0f / std::tan(fov / 2.0f);
-    projection << 1.0f / (aspect * tanHalfFov), 0, 0, 0, 0, 1.0f / tanHalfFov,
-        0, 0, 0, 0, -(far + near) / (far - near),
-        -(2 * far * near) / (far - near), 0, 0, -1, 0;
-    shaders->setUniformMatrix4("projection", projection);
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
   }
