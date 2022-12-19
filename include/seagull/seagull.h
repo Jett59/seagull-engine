@@ -2,6 +2,7 @@
 #define SEAGULL_SEAGULL_H
 
 #include <memory>
+#include <seagull/gameObject.h>
 #include <string>
 
 namespace seagull {
@@ -29,6 +30,17 @@ private:
 public:
   Game();
   ~Game();
+
+  /**
+   * @brief Create a game object and add it to the scene
+   *
+   * @note soon as it is added to the scene it will be rendered along with all
+   * of the other game objects.
+   *
+   * @param mesh the textured mesh which is used to create the game object
+   * @return the newly created GameObject
+   */
+  GameObject &createGameObject(TexturedMesh mesh);
 
   /**
    * @brief run the game

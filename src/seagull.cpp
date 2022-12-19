@@ -33,6 +33,11 @@ Game::~Game() {
   glfwSetErrorCallback(nullptr);
 }
 
+GameObject &Game::createGameObject(TexturedMesh mesh) {
+  gameContext->gameObjects.emplace_back(std::move(mesh));
+  return gameContext->gameObjects.back();
+}
+
 void Game::run(const std::string &title, int width, int height) {
   GLFWmonitor *primaryMonitor = glfwGetPrimaryMonitor();
   if (width == 0 && height == 0) {

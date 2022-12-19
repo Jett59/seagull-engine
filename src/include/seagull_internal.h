@@ -4,14 +4,18 @@
 #include <gl/glew.h> // Must be included before gl.h (which is included by glfw3.h)
 
 #include <GLFW/glfw3.h>
+#include <seagull/gameObject.h>
 #include <seagull/seagull.h>
 #include <shaders.h>
+#include <vector>
 
 namespace seagull {
 struct GameContext {
   GLFWwindow *window = nullptr;
   std::unique_ptr<Shaders>
       shaders; // We don't want it to be initialized immediately.
+
+  std::vector<GameObject> gameObjects;
 };
 } // namespace seagull
 
