@@ -71,11 +71,11 @@ void Game::run(const std::string &title, int width, int height) {
   // Create a triangle to show as a hello world.
   float vertices[] = {
       -0.5f, -0.433,
-      -0.5f, // left
+      5, // left
       0.5f,  -0.433f,
-      -0.5f, // right
+      5, // right
       0.0f,  0.433f,
-      -0.5f // top
+      5 // top
   };
   unsigned int VBO, VAO;
   glGenVertexArrays(1, &VAO);
@@ -90,17 +90,24 @@ void Game::run(const std::string &title, int width, int height) {
 
   double angle = 0;
 
+  unsigned modelUniform = shaders->getUniformLocation("model");
+  unsigned viewUniform = shaders->getUniformLocation("view");
+  unsigned projectionUniform = shaders->getUniformLocation("projection");
+
   // TODO: Pull out into a separate function.
   Eigen::Matrix4f projection;
-  static constexpr float fov = 45.0f;
+  static constexpr float fov = 45.0 * 3.14159265 / 180.0;
   static constexpr float near = 0.1f;
   static constexpr float far = 100.0f;
+  static constexpr float zRange = near - far;
   float aspect = (float)width / (float)height;
-  float tanHalfFov = 1.0f / std::tan(fov / 2.0f);
+  float tanHalfFov = std::tan(fov / 2.0f);
+  // Create a matrix for perspective projection (left-handed coordinates and so
+  // forth).
   projection << 1.0f / (aspect * tanHalfFov), 0, 0, 0, 0, 1.0f / tanHalfFov, 0,
-      0, 0, 0, -(far + near) / (far - near), -(2 * far * near) / (far - near),
-      0, 0, -1, 0;
-  shaders->setUniformMatrix4("projection", projection);
+      0, 0, 0, (-near - far) / zRange, 2.0f * far * near / zRange, 0, 0, 1, 0;
+  // projection = Eigen::Matrix4f::Identity();
+  shaders->setUniformMatrix4(projectionUniform, projection);
 
   while (!glfwWindowShouldClose(window)) {
     glfwSwapBuffers(window);
@@ -115,11 +122,11 @@ void Game::run(const std::string &title, int width, int height) {
     Eigen::Matrix4f model;
     model << std::cos(radians), -std::sin(radians), 0, 0, std::sin(radians),
         std::cos(radians), 0, 0, 0, 0, 1, 0, 0, 0, 0, 1;
-    shaders->setUniformMatrix4("model", model);
+    shaders->setUniformMatrix4(modelUniform, model);
     // Translate to the right.
     Eigen::Matrix4f view;
     view << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0.5, 0, 0, 1;
-    shaders->setUniformMatrix4("view", view);
+    shaders->setUniformMatrix4(viewUniform, view);
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
   }

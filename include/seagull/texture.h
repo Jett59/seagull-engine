@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <seagull/point.h>
+#include <string>
 #include <vector>
 
 namespace seagull {
@@ -14,6 +15,8 @@ struct Image {
   std::vector<Color> pixels;
   size_t width, height;
 };
+
+Image loadPngImage(const std::string &fileName);
 
 // The rest of this file is rather similar to mesh.h, except that everything is
 // 2d rather than 3d. TODO: refactor this in some way.
@@ -54,6 +57,8 @@ public:
 
   Triangle2d &operator[](size_t index) { return triangles[index]; }
   const Triangle2d &operator[](size_t index) const { return triangles[index]; }
+
+  const Image &getImage() const { return image; }
 };
 } // namespace seagull
 

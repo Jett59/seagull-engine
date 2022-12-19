@@ -19,33 +19,28 @@ public:
   ~Shaders();
 
   void use() { glUseProgram(shaderProgram); }
-  void setUniformFloat(const std::string &name, float value) {
-    glUniform1f(getUniformLocation(name), value);
-  }
-  void setUniformInt(const std::string &name, int value) {
-    glUniform1i(getUniformLocation(name), value);
-  }
-  void setUniformVector3(const std::string &name,
-                         const Eigen::Vector3f &value) {
-    glUniform3f(getUniformLocation(name), value.x(), value.y(), value.z());
-  }
-  void setUniformVector4(const std::string &name,
-                         const Eigen::Vector4f &value) {
-    glUniform4f(getUniformLocation(name), value.x(), value.y(), value.z(),
-                value.w());
-  }
-  void setUniformMatrix3(const std::string &name,
-                         const Eigen::Matrix3f &value) {
-    glUniformMatrix3fv(getUniformLocation(name), 1, GL_FALSE, value.data());
-  }
-  void setUniformMatrix4(const std::string &name,
-                         const Eigen::Matrix4f &value) {
-    glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, value.data());
+
+  unsigned getUniformLocation(const std::string &name) {
+    return glGetUniformLocation(shaderProgram, name.c_str());
   }
 
-private:
-  unsigned int getUniformLocation(const std::string &name) {
-    return glGetUniformLocation(shaderProgram, name.c_str());
+  void setUniformFloat(unsigned uniform, float value) {
+    glUniform1f(uniform, value);
+  }
+  void setUniformInt(unsigned uniform, int value) {
+    glUniform1i(uniform, value);
+  }
+  void setUniformVector3(unsigned uniform, const Eigen::Vector3f &value) {
+    glUniform3f(uniform, value.x(), value.y(), value.z());
+  }
+  void setUniformVector4(unsigned uniform, const Eigen::Vector4f &value) {
+    glUniform4f(uniform, value.x(), value.y(), value.z(), value.w());
+  }
+  void setUniformMatrix3(const unsigned uniform, const Eigen::Matrix3f &value) {
+    glUniformMatrix3fv(uniform, 1, GL_FALSE, value.data());
+  }
+  void setUniformMatrix4(const unsigned uniform, const Eigen::Matrix4f &value) {
+    glUniformMatrix4fv(uniform, 1, GL_FALSE, value.data());
   }
 };
 } // namespace seagull
