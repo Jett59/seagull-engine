@@ -18,12 +18,16 @@ private:
 
   GameObject(TexturedMesh mesh); // Only visible to our friends
 
-  ~GameObject(); // Can only be destroyed by our friends (typical superhero
-                 // weakness)
-
   friend class Game;
 
 public:
+  ~GameObject(); // I'd rather have this private, but it doesn't work very well
+                 // in a vector unless this is public.
+
+  // It doesn't work very well unless we put this in too.
+  GameObject(GameObject &&) = default;
+  GameObject &operator=(GameObject &&) = default;
+
   void setTranslateX(float x);
   void setTranslateY(float y);
   void setTranslateZ(float z);

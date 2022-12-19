@@ -61,9 +61,8 @@ void BuildBuffers(const Mesh &mesh, const Texture &texture, unsigned vertexVbo,
 }
 
 GameObject::GameObject(TexturedMesh mesh)
-    : state(std::make_unique<GameObjectState>()) {
-  state->mesh = std::move(mesh.mesh);
-  state->texture = std::move(mesh.texture);
+    : state(std::make_unique<GameObjectState>(std::move(mesh.mesh),
+                                              std::move(mesh.texture))) {
   unsigned &vao = state->vao;
   unsigned &vertexVbo = state->vertexVbo;
   unsigned &indexVbo = state->indexVbo;
@@ -102,11 +101,15 @@ GameObject::GameObject(TexturedMesh mesh)
 }
 
 GameObject::~GameObject() {
-  glDeleteVertexArrays(1, &state->vao);
-  glDeleteBuffers(1, &state->vertexVbo);
-  glDeleteBuffers(1, &state->indexVbo);
-  glDeleteBuffers(1, &state->textureVbo);
-  glDeleteTextures(1, &state->textureId);
+  // Since we may be called from the destructor of a temporary, we have to check
+  // that the state is not null.
+  if (state) {
+    glDeleteVertexArrays(1, &state->vao);
+    glDeleteBuffers(1, &state->vertexVbo);
+    glDeleteBuffers(1, &state->indexVbo);
+    glDeleteBuffers(1, &state->textureVbo);
+    glDeleteTextures(1, &state->textureId);
+  }
 }
 
 } // namespace seagull

@@ -39,6 +39,11 @@ struct GameObjectState {
   float scale = 1;
   Eigen::Vector3f rotation = Eigen::Vector3f::Zero();
   Eigen::Vector3f translation = Eigen::Vector3f::Zero();
+
+  // We need this constructor because texture doesn't have a default one. This
+  // is a bit annoying.
+  GameObjectState(Mesh mesh, Texture texture)
+      : mesh(std::move(mesh)), texture(std::move(texture)) {}
 };
 } // namespace seagull
 

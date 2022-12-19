@@ -1,5 +1,6 @@
 #include <Eigen/Dense>
 #include <cmath>
+#include <gameObject_internal.h>
 #include <iostream>
 #include <seagull_internal.h>
 #include <stdexcept>
@@ -34,7 +35,7 @@ Game::~Game() {
 }
 
 GameObject &Game::createGameObject(TexturedMesh mesh) {
-  gameContext->gameObjects.emplace_back(std::move(mesh));
+  gameContext->gameObjects.push_back(GameObject(std::move(mesh)));
   return gameContext->gameObjects.back();
 }
 
