@@ -100,4 +100,13 @@ GameObject::GameObject(TexturedMesh mesh)
                   GL_LINEAR_MIPMAP_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
+
+GameObject::~GameObject() {
+  glDeleteVertexArrays(1, &state->vao);
+  glDeleteBuffers(1, &state->vertexVbo);
+  glDeleteBuffers(1, &state->indexVbo);
+  glDeleteBuffers(1, &state->textureVbo);
+  glDeleteTextures(1, &state->textureId);
+}
+
 } // namespace seagull
