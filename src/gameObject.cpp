@@ -1,6 +1,5 @@
 #include <cassert>
 #include <gameObject_internal.h>
-#include <iostream>
 #include <matrixHelper.h>
 
 namespace seagull {

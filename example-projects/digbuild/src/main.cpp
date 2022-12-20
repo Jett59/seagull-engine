@@ -1,3 +1,4 @@
+#include <chrono>
 #include <iostream>
 #include <seagull/seagull.h>
 
@@ -13,7 +14,17 @@ int main() {
     quadObject.setTranslateZ(5);
     quadObject.setTranslateX(3);
     bool quadGoingLeft = true;
+    auto previousSecondStart = std::chrono::steady_clock::now();
+    unsigned framesThisSecond = 0;
     game.addUpdateFunction([&]() {
+      framesThisSecond++;
+      if (std::chrono::duration_cast<std::chrono::seconds>(
+              std::chrono::steady_clock::now() - previousSecondStart)
+              .count() >= 1) {
+        std::cout << "FPS: " << framesThisSecond << std::endl;
+        framesThisSecond = 0;
+        previousSecondStart = std::chrono::steady_clock::now();
+      }
       /*quadObject.setRotateZ(quadObject.getRotateZ() +
                             (quadGoingLeft ? -0.1f : 0.1f));*/
       if (quadGoingLeft && quadObject.getTranslateX() < -2) {
