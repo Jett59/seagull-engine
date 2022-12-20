@@ -5,7 +5,8 @@
 #include <cmath>
 
 namespace seagull {
-Eigen::Matrix4f getTranslateMatrix(const Eigen::Vector3f &translation) {
+static inline Eigen::Matrix4f
+getTranslateMatrix(const Eigen::Vector3f &translation) {
   Eigen::Matrix4f translateMatrix = Eigen::Matrix4f::Identity();
   translateMatrix(0, 3) = translation.x();
   translateMatrix(1, 3) = translation.y();
@@ -13,7 +14,7 @@ Eigen::Matrix4f getTranslateMatrix(const Eigen::Vector3f &translation) {
   return translateMatrix;
 }
 
-Eigen::Matrix4f getRotateMatrix(const Eigen::Vector3f &rotation) {
+static inline Eigen::Matrix4f getRotateMatrix(const Eigen::Vector3f &rotation) {
   Eigen::Matrix4f rotateMatrix = Eigen::Matrix4f::Identity();
   rotateMatrix(0, 0) = cos(rotation.y()) * cos(rotation.z());
   rotateMatrix(0, 1) = cos(rotation.y()) * sin(rotation.z());
@@ -35,12 +36,24 @@ Eigen::Matrix4f getRotateMatrix(const Eigen::Vector3f &rotation) {
   return rotateMatrix;
 }
 
-Eigen::Matrix4f getScaleMatrix(const float scale) {
+static inline Eigen::Matrix4f getScaleMatrix(const float scale) {
   Eigen::Matrix4f scaleMatrix = Eigen::Matrix4f::Identity();
   scaleMatrix(0, 0) = scale;
   scaleMatrix(1, 1) = scale;
   scaleMatrix(2, 2) = scale;
   return scaleMatrix;
+}
+
+static inline Eigen::Matrix4f
+getPerspectiveProjectionMatrix(float fovRadians, float zNear, float zFar,
+                               float aspectRatio) {
+  Eigen::Matrix4f projection;
+  float zRange = zNear - zFar;
+  float tanHalfFov = std::tan(fovRadians / 2.0f);
+  projection << 1.0f / (aspectRatio * tanHalfFov), 0, 0, 0, 0,
+      1.0f / tanHalfFov, 0, 0, 0, 0, (-zNear - zFar) / zRange,
+      2.0f * zFar * zNear / zRange, 0, 0, 1, 0;
+  return projection;
 }
 } // namespace seagull
 

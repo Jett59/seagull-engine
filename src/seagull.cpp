@@ -2,6 +2,8 @@
 #include <cmath>
 #include <gameObject_internal.h>
 #include <iostream>
+#include <mathHelper.h>
+#include <matrixHelper.h>
 #include <renderer.h>
 #include <seagull_internal.h>
 #include <stdexcept>
@@ -85,22 +87,17 @@ void Game::run(const std::string &title, int width, int height) {
   unsigned viewUniform = shaders->getUniformLocation("view");
   unsigned projectionUniform = shaders->getUniformLocation("projection");
 
-  // TODO: Pull out into a separate function.
-  Eigen::Matrix4f projection;
-  static constexpr float fov = 45.0 * 3.14159265 / 180.0;
-  static constexpr float near = 0.1f;
-  static constexpr float far = 100.0f;
-  static constexpr float zRange = near - far;
-  float aspect = (float)width / (float)height;
-  float tanHalfFov = std::tan(fov / 2.0f);
-  // Create a matrix for perspective projection (left-handed coordinates and so
-  // forth).
-  projection << 1.0f / (aspect * tanHalfFov), 0, 0, 0, 0, 1.0f / tanHalfFov, 0,
-      0, 0, 0, (-near - far) / zRange, 2.0f * far * near / zRange, 0, 0, 1, 0;
-  shaders->setUniformMatrix4(projectionUniform, projection);
+  static constexpr float fovRadians = toRadians(45.0f);
+  static constexpr float zNear = 0.1f;
+  static constexpr float zFar = 100.0f;
+  float aspectRatio = (float)width / (float)height;
+  auto projectionMatrix =
+      getPerspectiveProjectionMatrix(fovRadians, zNear, zFar, aspectRatio);
+  shaders->setUniformMatrix4(projectionUniform, projectionMatrix);
+
   // TODO: add a camera and change this.
-  Eigen::Matrix4f view = Eigen::Matrix4f::Identity();
-  shaders->setUniformMatrix4(viewUniform, view);
+  Eigen::Matrix4f viewMatrix = Eigen::Matrix4f::Identity();
+  shaders->setUniformMatrix4(viewUniform, viewMatrix);
 
   while (!glfwWindowShouldClose(window)) {
     glfwSwapBuffers(window);

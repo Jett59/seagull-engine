@@ -12,6 +12,7 @@ int main() {
     quadObject.setTranslateZ(5);
     quadObject.setTranslateX(2);
     quadObject.setRotateZ(0.5);
+    quadObject.setScale(0.5f);
     game.run("Digbuild", 0, 0);
     return 0;
   } catch (const std::exception &e) {
