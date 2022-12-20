@@ -64,16 +64,6 @@ void buildBuffers(const Mesh &mesh, const Texture &texture, unsigned vertexVbo,
 GameObject::GameObject(TexturedMesh mesh)
     : state(std::make_unique<GameObjectState>(std::move(mesh.mesh),
                                               std::move(mesh.texture))) {
-  // Important: the texture coordinates are currently stored with the top left
-  // corner as (0, 0). OpenGL expects the bottom left corner to be (0, 0). We'll
-  // fix that here.
-  // It's slightly annoying, but more intuitive for clients (which is the
-  // important thing).
-  for (Triangle2d &triangle : state->texture) {
-    triangle.a.y = 1 - triangle.a.y;
-    triangle.b.y = 1 - triangle.b.y;
-    triangle.c.y = 1 - triangle.c.y;
-  }
   unsigned &vao = state->vao;
   unsigned &vertexVbo = state->vertexVbo;
   unsigned &indexVbo = state->indexVbo;
@@ -92,6 +82,13 @@ GameObject::GameObject(TexturedMesh mesh)
   glEnableVertexAttribArray(1);
   glBindVertexArray(0);
   // We also have to build the texture.
+  // It's interesting to note that, although OpenGL usually has a texture
+  // coordinate origin of the bottom-left, what it really means is that textures
+  // are usually layed out this way in memory. In other words, OpenGL simply
+  // looks up the pixel value using the top row in the data as 0, and this is
+  // usually set to the bottom of the image. For this reason, even though our
+  // convention for laying out images is different to the OpenGL convention, it
+  // really makes no difference.
   unsigned &textureId = state->textureId;
   glGenTextures(1, &textureId);
   glBindTexture(GL_TEXTURE_2D, textureId);
