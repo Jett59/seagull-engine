@@ -40,17 +40,17 @@ Shaders::Shaders(const std::string &vertexShaderSource,
 static const char *defaultVertexShader = R"(
 #version 330 core
 layout (location = 0) in vec3 position;
-// layout (location = 1) in vec2 textureCoordinate; // TODO
+layout (location = 1) in vec2 inTextureCoordinate;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
-// out vec2 textureCoordinate; // TODO
+out vec2 textureCoordinate;
 
 void main() {
   gl_Position = projection * view * model * vec4(position, 1.0f);
-  // textureCoordinate = textureCoordinate; // TODO
+  textureCoordinate = inTextureCoordinate;
 }
 )";
 
@@ -58,11 +58,12 @@ static const char *defaultFragmentShader = R"(
 #version 330 core
 out vec4 color;
 
-// in vec2 textureCoordinate; // TODO
+in vec2 textureCoordinate;
+
+uniform sampler2D textureUnit;
 
 void main() {
-  // color = texture(texture, textureCoordinate); // TODO
-  color = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+  color = texture(textureUnit, textureCoordinate);
 }
 )";
 
