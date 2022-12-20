@@ -1,5 +1,6 @@
 #include <cassert>
 #include <gameObject_internal.h>
+#include <iostream>
 #include <matrixHelper.h>
 
 namespace seagull {
@@ -64,6 +65,16 @@ void buildBuffers(const Mesh &mesh, const Texture &texture, unsigned vertexVbo,
 GameObject::GameObject(TexturedMesh mesh)
     : state(std::make_unique<GameObjectState>(std::move(mesh.mesh),
                                               std::move(mesh.texture))) {
+  // Important: the texture coordinates are currently stored with the top left
+  // corner as (0, 0). OpenGL expects the bottom left corner to be (0, 0). We'll
+  // fix that here.
+  // It's slightly annoying, but more intuitive for clients (which is the
+  // important thing).
+  for (Triangle2d &triangle : state->texture) {
+    triangle.a.y = 1 - triangle.a.y;
+    triangle.b.y = 1 - triangle.b.y;
+    triangle.c.y = 1 - triangle.c.y;
+  }
   unsigned &vao = state->vao;
   unsigned &vertexVbo = state->vertexVbo;
   unsigned &indexVbo = state->indexVbo;

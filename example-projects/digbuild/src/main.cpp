@@ -8,15 +8,14 @@ int main() {
     Game game;
     auto &quadObject = game.createGameObject(TexturedMesh(
         Mesh().addQuad({-1, -1, 0}, {1, -1, 0}, {1, 1, 0}, {-1, 1, 0}),
-        Color{0.1, 0.2, 1}));
+        Texture(loadPngImage("assets/grass.png"))
+            .addQuad({0, 0}, {1, 0}, {1, 1}, {0, 1})));
     quadObject.setTranslateZ(5);
     quadObject.setTranslateX(3);
-    quadObject.setRotateZ(0.5);
-    quadObject.setScale(0.5f);
     bool quadGoingLeft = true;
     game.addUpdateFunction([&]() {
-      quadObject.setRotateZ(quadObject.getRotateZ() +
-                            (quadGoingLeft ? -0.1f : 0.1f));
+      /*quadObject.setRotateZ(quadObject.getRotateZ() +
+                            (quadGoingLeft ? -0.1f : 0.1f));*/
       if (quadGoingLeft && quadObject.getTranslateX() < -2) {
         quadGoingLeft = false;
       } else if (!quadGoingLeft && quadObject.getTranslateX() > 2) {

@@ -11,6 +11,12 @@ struct Color {
   float r, g, b, a;
 };
 
+/**
+ * @brief an image
+ *
+ * @note the first pixel corresponds to the top left corner of the image and the
+ * last pixel corresponds to the bottom right corner of the image
+ */
 struct Image {
   std::vector<Color> pixels;
   size_t width, height;
@@ -24,6 +30,12 @@ struct Triangle2d {
   Point2d a, b, c;
 };
 
+/**
+ * @brief a texture (image and mapping onto a mesh)
+ *
+ * @note all coordinates are in the range [0, 1], where [0, 0] is the top left
+ * corner and [1, 1] is the bottom right corner
+ */
 class Texture {
 private:
   std::vector<Triangle2d> triangles;
