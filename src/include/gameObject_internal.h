@@ -20,7 +20,7 @@ struct GameObjectState {
   Texture texture;
 
   // Caching these values has no downside, so we do that.
-  Eigen::Matrix4cf totalTransformationMatrix = Eigen::Matrix4cf::Identity();
+  Eigen::Matrix4f totalTransformationMatrix = Eigen::Matrix4f::Identity();
   Eigen::Matrix4f scaleMatrix = Eigen::Matrix4f::Identity();
   Eigen::Matrix4f rotationMatrix = Eigen::Matrix4f::Identity();
   Eigen::Matrix4f translationMatrix = Eigen::Matrix4f::Identity();

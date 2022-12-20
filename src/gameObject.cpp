@@ -2,7 +2,7 @@
 #include <gameObject_internal.h>
 
 namespace seagull {
-void BuildBuffers(const Mesh &mesh, const Texture &texture, unsigned vertexVbo,
+void buildBuffers(const Mesh &mesh, const Texture &texture, unsigned vertexVbo,
                   unsigned textureVbo, unsigned indexVbo) {
   std::vector<float> vertices;
   std::vector<float> textureCoordinates;
@@ -38,12 +38,12 @@ void BuildBuffers(const Mesh &mesh, const Texture &texture, unsigned vertexVbo,
         }
       }
       if (!found) {
+        indices.push_back(vertices.size() / 3 /* floats per vertex */);
         vertices.push_back(meshPoint.x);
         vertices.push_back(meshPoint.y);
         vertices.push_back(meshPoint.z);
         textureCoordinates.push_back(texturePoint.x);
         textureCoordinates.push_back(texturePoint.y);
-        indices.push_back(indices.size());
       }
     }
   }
@@ -72,7 +72,7 @@ GameObject::GameObject(TexturedMesh mesh)
   glGenBuffers(1, &indexVbo);
   glGenBuffers(1, &textureVbo);
   glBindVertexArray(vao);
-  BuildBuffers(state->mesh, state->texture, vertexVbo, textureVbo, indexVbo);
+  buildBuffers(state->mesh, state->texture, vertexVbo, textureVbo, indexVbo);
   glBindBuffer(GL_ARRAY_BUFFER, vertexVbo);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
   glEnableVertexAttribArray(0);

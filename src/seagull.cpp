@@ -2,6 +2,7 @@
 #include <cmath>
 #include <gameObject_internal.h>
 #include <iostream>
+#include <renderer.h>
 #include <seagull_internal.h>
 #include <stdexcept>
 
@@ -25,6 +26,19 @@ Game::Game() {
   glfwWindowHint(GLFW_VISIBLE,
                  GLFW_FALSE); // Don't let anyone see us before we are ready.
   glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+  // We have to create the window here, however we can't show it since it still
+  // needs to be worked on. We have to do it here because we need to make the
+  // context current and initialize glew.
+  gameContext->window = glfwCreateWindow(10, 10, "", nullptr, nullptr);
+  glfwMakeContextCurrent(gameContext->window);
+  // We have to do this here to make sure we have a valid OpenGL context.
+  // Otherwise GLEW complains rather a lot.
+  auto glewInitResult = glewInit();
+  if (glewInitResult != GLEW_OK) {
+    throw std::runtime_error(
+        "Failed to initialize GLEW: " +
+        std::string((char *)glewGetErrorString(glewInitResult)));
+  }
 }
 Game::~Game() {
   if (gameContext->window) {
@@ -46,24 +60,18 @@ void Game::run(const std::string &title, int width, int height) {
     width = videoMode->width;
     height = videoMode->height;
   }
-  GLFWwindow *&window = gameContext->window;
-  window =
-      glfwCreateWindow(width, height, title.c_str(), primaryMonitor, nullptr);
+  GLFWwindow *window = gameContext->window;
+  glfwSetWindowSize(window, width, height);
+  glfwSetWindowTitle(window, title.c_str());
+  glfwSetWindowMonitor(window, primaryMonitor, 0, 0, width, height,
+                       GLFW_DONT_CARE);
   if (!window) {
     throw std::runtime_error("Failed to create window");
-  }
-  glfwMakeContextCurrent(window);
-  // We have to do this here to make sure we have a valid OpenGL context.
-  // Otherwise GLEW complains rather a lot.
-  auto glewInitResult = glewInit();
-  if (glewInitResult != GLEW_OK) {
-    throw std::runtime_error(
-        "Failed to initialize GLEW: " +
-        std::string((char *)glewGetErrorString(glewInitResult)));
   }
 
   glfwSwapInterval(1); // Vsync
   glfwShowWindow(window);
+  glfwFocusWindow(window); // Not sure this is necessary, but it can't hurt.
   glViewport(0, 0, width, height);
 
   glEnable(GL_BLEND);
@@ -72,29 +80,6 @@ void Game::run(const std::string &title, int width, int height) {
   std::unique_ptr<Shaders> &shaders = gameContext->shaders;
   shaders = std::make_unique<Shaders>();
   shaders->use();
-
-  // TODO: replace with a proper object system.
-  // Create a triangle to show as a hello world.
-  float vertices[] = {
-      -0.5f, -0.433,
-      5, // left
-      0.5f,  -0.433f,
-      5, // right
-      0.0f,  0.433f,
-      5 // top
-  };
-  unsigned int VBO, VAO;
-  glGenVertexArrays(1, &VAO);
-  glGenBuffers(1, &VBO);
-  glBindVertexArray(VAO);
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-  glEnableVertexAttribArray(0);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindVertexArray(0);
-
-  double angle = 0;
 
   unsigned modelUniform = shaders->getUniformLocation("model");
   unsigned viewUniform = shaders->getUniformLocation("view");
@@ -112,29 +97,20 @@ void Game::run(const std::string &title, int width, int height) {
   // forth).
   projection << 1.0f / (aspect * tanHalfFov), 0, 0, 0, 0, 1.0f / tanHalfFov, 0,
       0, 0, 0, (-near - far) / zRange, 2.0f * far * near / zRange, 0, 0, 1, 0;
-  // projection = Eigen::Matrix4f::Identity();
   shaders->setUniformMatrix4(projectionUniform, projection);
+  // TODO: add a camera and change this.
+  Eigen::Matrix4f view = Eigen::Matrix4f::Identity();
+  shaders->setUniformMatrix4(viewUniform, view);
 
   while (!glfwWindowShouldClose(window)) {
     glfwSwapBuffers(window);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glfwPollEvents();
-    // TODO: replace with a proper object system.
-    // Set the model matrix with a rotation.
-    angle = angle + 1 > 360 ? 0 : angle + 1;
-    // We have to convert the angle to radians.
-    static constexpr double PI = 3.14159265358979323846;
-    double radians = angle * PI / 180;
-    Eigen::Matrix4f model;
-    model << std::cos(radians), -std::sin(radians), 0, 0, std::sin(radians),
-        std::cos(radians), 0, 0, 0, 0, 1, 0, 0, 0, 0, 1;
-    shaders->setUniformMatrix4(modelUniform, model);
-    // Translate to the right.
-    Eigen::Matrix4f view;
-    view << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0.5, 0, 0, 1;
-    shaders->setUniformMatrix4(viewUniform, view);
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    for (const auto &gameObject : gameContext->gameObjects) {
+      shaders->setUniformMatrix4(modelUniform,
+                                 gameObject.state->totalTransformationMatrix);
+      render(*gameObject.state, *gameContext, true);
+    }
   }
 }
 } // namespace seagull
