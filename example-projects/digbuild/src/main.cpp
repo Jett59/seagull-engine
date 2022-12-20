@@ -6,9 +6,11 @@ using namespace seagull;
 int main() {
   try {
     Game game;
-    game.createGameObject(TexturedMesh(
-        Mesh().addQuad({-1, -1, 5}, {1, -1, 5}, {1, 1, 5}, {-1, 1, 5}),
+    auto &quadObject = game.createGameObject(TexturedMesh(
+        Mesh().addQuad({-1, -1, 0}, {1, -1, 0}, {1, 1, 0}, {-1, 1, 0}),
         Color{0.1, 0.2, 1}));
+    quadObject.setTranslateZ(5);
+    quadObject.setTranslateX(2);
     game.run("Digbuild", 0, 0);
     return 0;
   } catch (const std::exception &e) {

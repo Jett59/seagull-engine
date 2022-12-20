@@ -1,5 +1,6 @@
 #include <cassert>
 #include <gameObject_internal.h>
+#include <matrixHelper.h>
 
 namespace seagull {
 void buildBuffers(const Mesh &mesh, const Texture &texture, unsigned vertexVbo,
@@ -110,6 +111,44 @@ GameObject::~GameObject() {
     glDeleteBuffers(1, &state->textureVbo);
     glDeleteTextures(1, &state->textureId);
   }
+}
+
+// All of the following recalculateXMatrices functions follow the same
+// structure:
+// 1. Calculate the new matrix for the particular transform.
+// 2. If the cached matrix for the other two transforms is null, we multiply its
+// components and cache it in the state.
+// 3. Multiply the new matrix for the transform we are calculating with the
+// cached matrix for the other two transforms.
+// 4. Invalidate the caches for the two cached matrices which depend on the
+// transform we are calculating.
+// Look at how they are implemented if that doesn't make sense.
+
+void recalculateTranslationMatrices(GameObjectState &state) {
+  state.translationMatrix = getTranslateMatrix(state.translation);
+  if (!state.rotateScaleMatrix) {
+    state.rotateScaleMatrix = state.rotationMatrix * state.scaleMatrix;
+  }
+  state.totalTransformationMatrix =
+      state.translationMatrix * *state.rotateScaleMatrix;
+  state.translateRotateMatrix.reset();
+  state.translateScaleMatrix.reset();
+}
+
+void GameObject::setTranslateX(float value) {
+  auto &translation = state->translation;
+  translation.x() = value;
+  recalculateTranslationMatrices(*state);
+}
+void GameObject::setTranslateY(float value) {
+  auto &translation = state->translation;
+  translation.y() = value;
+  recalculateTranslationMatrices(*state);
+}
+void GameObject::setTranslateZ(float value) {
+  auto &translation = state->translation;
+  translation.z() = value;
+  recalculateTranslationMatrices(*state);
 }
 
 } // namespace seagull
