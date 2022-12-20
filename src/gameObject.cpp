@@ -122,7 +122,10 @@ GameObject::~GameObject() {
 // cached matrix for the other two transforms.
 // 4. Invalidate the caches for the two cached matrices which depend on the
 // transform we are calculating.
-// Look at how they are implemented if that doesn't make sense.
+// According to my maths, the scale matrix is commutative (as it is a multiple
+// of the identity matrix). The translate matrix must be multiplied as the
+// leftmost matrix. The rotation matrix must be multiplied as the rightmost
+// matrix.
 
 void recalculateTranslationMatrices(GameObjectState &state) {
   state.translationMatrix = getTranslateMatrix(state.translation);
@@ -133,6 +136,17 @@ void recalculateTranslationMatrices(GameObjectState &state) {
       state.translationMatrix * *state.rotateScaleMatrix;
   state.translateRotateMatrix.reset();
   state.translateScaleMatrix.reset();
+}
+
+void recalculateRotationMatrices(GameObjectState &state) {
+  state.rotationMatrix = getRotateMatrix(state.rotation);
+  if (!state.translateScaleMatrix) {
+    state.translateScaleMatrix = state.translationMatrix * state.scaleMatrix;
+  }
+  state.totalTransformationMatrix =
+      *state.translateScaleMatrix * state.rotationMatrix;
+  state.translateRotateMatrix.reset();
+  state.rotateScaleMatrix.reset();
 }
 
 void GameObject::setTranslateX(float value) {
@@ -149,6 +163,22 @@ void GameObject::setTranslateZ(float value) {
   auto &translation = state->translation;
   translation.z() = value;
   recalculateTranslationMatrices(*state);
+}
+
+void GameObject::setRotateX(float radians) {
+  auto &rotation = state->rotation;
+  rotation.x() = radians;
+  recalculateRotationMatrices(*state);
+}
+void GameObject::setRotateY(float radians) {
+  auto &rotation = state->rotation;
+  rotation.y() = radians;
+  recalculateRotationMatrices(*state);
+}
+void GameObject::setRotateZ(float radians) {
+  auto &rotation = state->rotation;
+  rotation.z() = radians;
+  recalculateRotationMatrices(*state);
 }
 
 } // namespace seagull

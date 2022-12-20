@@ -32,9 +32,9 @@ public:
   void setTranslateY(float y);
   void setTranslateZ(float z);
 
-  void setRotateX(float x);
-  void setRotateY(float y);
-  void setRotateZ(float z);
+  void setRotateX(float radians);
+  void setRotateY(float radians);
+  void setRotateZ(float radians);
 
   void setScale(float scale);
 
