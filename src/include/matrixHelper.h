@@ -34,6 +34,14 @@ Eigen::Matrix4f getRotateMatrix(const Eigen::Vector3f &rotation) {
   rotateMatrix(2, 2) = cos(rotation.x()) * cos(rotation.y());
   return rotateMatrix;
 }
+
+Eigen::Matrix4f getScaleMatrix(const float scale) {
+  Eigen::Matrix4f scaleMatrix = Eigen::Matrix4f::Identity();
+  scaleMatrix(0, 0) = scale;
+  scaleMatrix(1, 1) = scale;
+  scaleMatrix(2, 2) = scale;
+  return scaleMatrix;
+}
 } // namespace seagull
 
 #endif

@@ -149,6 +149,18 @@ void recalculateRotationMatrices(GameObjectState &state) {
   state.rotateScaleMatrix.reset();
 }
 
+void recalculateScaleMatrices(GameObjectState &state) {
+  state.scaleMatrix = getScaleMatrix(state.scale);
+  if (!state.translateRotateMatrix) {
+    state.translateRotateMatrix =
+        state.translationMatrix * state.rotationMatrix;
+  }
+  state.totalTransformationMatrix =
+      *state.translateRotateMatrix * state.scaleMatrix;
+  state.rotateScaleMatrix.reset();
+  state.translateScaleMatrix.reset();
+}
+
 void GameObject::setTranslateX(float value) {
   auto &translation = state->translation;
   translation.x() = value;
@@ -181,4 +193,8 @@ void GameObject::setRotateZ(float radians) {
   recalculateRotationMatrices(*state);
 }
 
+void GameObject::setScale(float value) {
+  state->scale = value;
+  recalculateScaleMatrices(*state);
+}
 } // namespace seagull
