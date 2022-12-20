@@ -16,6 +16,7 @@ struct GameContext {
       shaders; // We don't want it to be initialized immediately.
 
   std::vector<GameObject> gameObjects;
+  std::vector<std::function<void()>> updateFunctions;
 };
 } // namespace seagull
 

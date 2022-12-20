@@ -55,6 +55,10 @@ GameObject &Game::createGameObject(TexturedMesh mesh) {
   return gameContext->gameObjects.back();
 }
 
+void Game::addUpdateFunction(std::function<void()> updateFunction) {
+  gameContext->updateFunctions.push_back(std::move(updateFunction));
+}
+
 void Game::run(const std::string &title, int width, int height) {
   GLFWmonitor *primaryMonitor = glfwGetPrimaryMonitor();
   if (width == 0 && height == 0) {
@@ -100,14 +104,17 @@ void Game::run(const std::string &title, int width, int height) {
   shaders->setUniformMatrix4(viewUniform, viewMatrix);
 
   while (!glfwWindowShouldClose(window)) {
-    glfwSwapBuffers(window);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glfwPollEvents();
+    for (const auto &updateFunction : gameContext->updateFunctions) {
+      updateFunction();
+    }
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     for (const auto &gameObject : gameContext->gameObjects) {
       shaders->setUniformMatrix4(modelUniform,
                                  gameObject.state->totalTransformationMatrix);
       render(*gameObject.state, *gameContext, true);
     }
+    glfwSwapBuffers(window);
   }
 }
 } // namespace seagull

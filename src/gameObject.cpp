@@ -197,4 +197,15 @@ void GameObject::setScale(float value) {
   state->scale = value;
   recalculateScaleMatrices(*state);
 }
+
+// These are less complex.
+float GameObject::getTranslateX() const { return state->translation.x(); }
+float GameObject::getTranslateY() const { return state->translation.y(); }
+float GameObject::getTranslateZ() const { return state->translation.z(); }
+
+float GameObject::getRotateX() const { return state->rotation.x(); }
+float GameObject::getRotateY() const { return state->rotation.y(); }
+float GameObject::getRotateZ() const { return state->rotation.z(); }
+
+float GameObject::getScale() const { return state->scale; }
 } // namespace seagull

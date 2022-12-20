@@ -1,6 +1,7 @@
 #ifndef SEAGULL_SEAGULL_H
 #define SEAGULL_SEAGULL_H
 
+#include <functional>
 #include <memory>
 #include <seagull/gameObject.h>
 #include <string>
@@ -41,6 +42,20 @@ public:
    * @return the newly created GameObject
    */
   GameObject &createGameObject(TexturedMesh mesh);
+
+  /**
+   * @brief add a function to run every frame
+   *
+   * @note this function is executed prior to rendering the scene, meaning any
+   * transformations will take effect almost immediately.
+   *
+   * @note the number of frames per second will be capped at the refresh rate,
+   * however it may be less if the game is running slowly. For this reason it
+   * should not be depended upon for timing.
+   *
+   * @param updateFunction the function to run every frame
+   */
+  void addUpdateFunction(std::function<void()> updateFunction);
 
   /**
    * @brief run the game
