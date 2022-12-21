@@ -13,7 +13,7 @@ enum class CubeTextureType {
 static TexturedMesh generateCubeMesh(Image image, CubeTextureType textureType) {
   Mesh mesh;
   mesh.addQuad({-1, -1, -1}, {1, -1, -1}, {1, 1, -1}, {-1, 1, -1}); // front
-  mesh.addQuad({-1, -1, 1}, {-1, -1, 1}, {1, 1, 1}, {-1, 1, 1});     // back
+  mesh.addQuad({-1, -1, 1}, {-1, -1, 1}, {1, 1, 1}, {-1, 1, 1});    // back
   mesh.addQuad({-1, -1, -1}, {-1, -1, 1}, {-1, 1, 1}, {-1, 1, -1}); // left
   mesh.addQuad({1, -1, -1}, {1, 1, -1}, {1, 1, 1}, {1, -1, 1});     // right
   mesh.addQuad({-1, 1, -1}, {1, 1, -1}, {1, 1, 1}, {-1, 1, 1});     // top
@@ -36,16 +36,16 @@ static TexturedMesh generateCubeMesh(Image image, CubeTextureType textureType) {
     // are the front, back, left and right.
     static constexpr float ONE_THIRD = 1.0f / 3.0f;
     static constexpr float TWO_THIRDS = 2.0f / 3.0f;
-    mesh.addQuad({0, TWO_THIRDS}, {1, TWO_THIRDS}, {1, ONE_THIRD},
-                 {0, ONE_THIRD}); // front
-    mesh.addQuad({0, TWO_THIRDS}, {1, TWO_THIRDS}, {1, ONE_THIRD},
-                 {0, ONE_THIRD}); // back
-    mesh.addQuad({0, TWO_THIRDS}, {1, TWO_THIRDS}, {1, ONE_THIRD},
-                 {0, ONE_THIRD}); // left
-    mesh.addQuad({0, TWO_THIRDS}, {1, TWO_THIRDS}, {1, ONE_THIRD},
-                 {0, ONE_THIRD});                                   // right
-    mesh.addQuad({0, ONE_THIRD}, {1, ONE_THIRD}, {1, 0}, {0, 0});   // top
-    mesh.addQuad({0, 1}, {1, 1}, {1, TWO_THIRDS}, {0, TWO_THIRDS}); // bottom
+    texture.addQuad({0, TWO_THIRDS}, {1, TWO_THIRDS}, {1, ONE_THIRD},
+                    {0, ONE_THIRD}); // front
+    texture.addQuad({0, TWO_THIRDS}, {1, TWO_THIRDS}, {1, ONE_THIRD},
+                    {0, ONE_THIRD}); // back
+    texture.addQuad({0, TWO_THIRDS}, {1, TWO_THIRDS}, {1, ONE_THIRD},
+                    {0, ONE_THIRD}); // left
+    texture.addQuad({0, TWO_THIRDS}, {1, TWO_THIRDS}, {1, ONE_THIRD},
+                    {0, ONE_THIRD});                                   // right
+    texture.addQuad({0, ONE_THIRD}, {1, ONE_THIRD}, {1, 0}, {0, 0});   // top
+    texture.addQuad({0, 1}, {1, 1}, {1, TWO_THIRDS}, {0, TWO_THIRDS}); // bottom
     break;
   }
   case CubeTextureType::TOP_BOTTOM_FRONT_BACK_LEFT_RIGHT: {
@@ -58,23 +58,25 @@ static TexturedMesh generateCubeMesh(Image image, CubeTextureType textureType) {
     static constexpr float ONE_QUARTER = 1.0f / 4.0f;
     static constexpr float TWO_QUARTERS = 2.0f / 4.0f;
     static constexpr float THREE_QUARTERS = 3.0f / 4.0f;
-    mesh.addQuad({ONE_QUARTER, TWO_THIRDS}, {TWO_QUARTERS, TWO_THIRDS},
-                 {TWO_QUARTERS, ONE_THIRD}, {ONE_QUARTER, ONE_THIRD}); // front
-    mesh.addQuad({THREE_QUARTERS, TWO_THIRDS}, {1, TWO_THIRDS}, {1, ONE_THIRD},
-                 {THREE_QUARTERS, ONE_THIRD}); // back
-    mesh.addQuad({0, TWO_THIRDS}, {ONE_QUARTER, TWO_THIRDS},
-                 {ONE_QUARTER, ONE_THIRD}, {0, ONE_THIRD}); // left
-    mesh.addQuad({TWO_QUARTERS, TWO_THIRDS}, {THREE_QUARTERS, TWO_THIRDS},
-                 {THREE_QUARTERS, ONE_THIRD},
-                 {TWO_QUARTERS, ONE_THIRD}); // right
-    mesh.addQuad({ONE_QUARTER, ONE_THIRD}, {TWO_QUARTERS, ONE_THIRD},
-                 {TWO_QUARTERS, 0}, {ONE_QUARTER, 0}); // top
-    mesh.addQuad({ONE_QUARTER, 1}, {TWO_QUARTERS, 1},
-                 {TWO_QUARTERS, TWO_THIRDS},
-                 {ONE_QUARTER, TWO_THIRDS}); // bottom
+    texture.addQuad({ONE_QUARTER, TWO_THIRDS}, {TWO_QUARTERS, TWO_THIRDS},
+                    {TWO_QUARTERS, ONE_THIRD},
+                    {ONE_QUARTER, ONE_THIRD}); // front
+    texture.addQuad({THREE_QUARTERS, TWO_THIRDS}, {1, TWO_THIRDS},
+                    {1, ONE_THIRD}, {THREE_QUARTERS, ONE_THIRD}); // back
+    texture.addQuad({0, TWO_THIRDS}, {ONE_QUARTER, TWO_THIRDS},
+                    {ONE_QUARTER, ONE_THIRD}, {0, ONE_THIRD}); // left
+    texture.addQuad({TWO_QUARTERS, TWO_THIRDS}, {THREE_QUARTERS, TWO_THIRDS},
+                    {THREE_QUARTERS, ONE_THIRD},
+                    {TWO_QUARTERS, ONE_THIRD}); // right
+    texture.addQuad({ONE_QUARTER, ONE_THIRD}, {TWO_QUARTERS, ONE_THIRD},
+                    {TWO_QUARTERS, 0}, {ONE_QUARTER, 0}); // top
+    texture.addQuad({ONE_QUARTER, 1}, {TWO_QUARTERS, 1},
+                    {TWO_QUARTERS, TWO_THIRDS},
+                    {ONE_QUARTER, TWO_THIRDS}); // bottom
     break;
   }
   }
+  std::cout << mesh.size() << " " << texture.size() << std::endl;
   return TexturedMesh(std::move(mesh), std::move(texture));
 }
 
@@ -82,7 +84,7 @@ int main() {
   try {
     Game game;
     auto &quadObject = game.createGameObject(generateCubeMesh(
-        loadPngImage("assets/grass.png"), CubeTextureType::SIDES));
+        loadPngImage("assets/grass.png"), CubeTextureType::TOP_BOTTOM_SIDES));
     quadObject.setTranslateZ(5);
     quadObject.setTranslateX(3);
     quadObject.setRotateX(0.75);
@@ -100,7 +102,8 @@ int main() {
         previousSecondStart = std::chrono::steady_clock::now();
       }
       /*quadObject.setRotateZ(quadObject.getRotateZ() +
-                            (quadGoingLeft ? -0.1f : 0.1f))*/;
+                            (quadGoingLeft ? -0.1f : 0.1f))*/
+      ;
       if (quadGoingLeft && quadObject.getTranslateX() < -2) {
         quadGoingLeft = false;
       } else if (!quadGoingLeft && quadObject.getTranslateX() > 2) {

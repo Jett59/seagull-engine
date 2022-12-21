@@ -91,7 +91,7 @@ void Game::run(const std::string &title, int width, int height) {
   unsigned viewUniform = shaders->getUniformLocation("view");
   unsigned projectionUniform = shaders->getUniformLocation("projection");
 
-  static constexpr float fovRadians = toRadians(45.0f);
+  static constexpr float fovRadians = toRadians(90);
   static constexpr float zNear = 0.1f;
   static constexpr float zFar = 100.0f;
   float aspectRatio = (float)width / (float)height;
