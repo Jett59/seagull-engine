@@ -76,19 +76,18 @@ static TexturedMesh generateCubeMesh(Image image, CubeTextureType textureType) {
     break;
   }
   }
-  std::cout << mesh.size() << " " << texture.size() << std::endl;
   return TexturedMesh(std::move(mesh), std::move(texture));
 }
 
 int main() {
   try {
     Game game;
-    auto &quadObject = game.createGameObject(generateCubeMesh(
+    auto &cube = game.createGameObject(generateCubeMesh(
         loadPngImage("assets/grass.png"), CubeTextureType::TOP_BOTTOM_SIDES));
-    quadObject.setTranslateZ(5);
-    quadObject.setTranslateX(3);
-    quadObject.setRotateX(0.75);
-    quadObject.setRotateY(0.75);
+    cube.setTranslateZ(5);
+    cube.setTranslateX(3);
+    cube.setRotateX(0.75);
+    cube.setRotateY(0.75);
     bool quadGoingLeft = true;
     auto previousSecondStart = std::chrono::steady_clock::now();
     unsigned framesThisSecond = 0;
@@ -104,13 +103,13 @@ int main() {
       /*quadObject.setRotateZ(quadObject.getRotateZ() +
                             (quadGoingLeft ? -0.1f : 0.1f))*/
       ;
-      if (quadGoingLeft && quadObject.getTranslateX() < -2) {
+      if (quadGoingLeft && cube.getTranslateX() < -2) {
         quadGoingLeft = false;
-      } else if (!quadGoingLeft && quadObject.getTranslateX() > 2) {
+      } else if (!quadGoingLeft && cube.getTranslateX() > 2) {
         quadGoingLeft = true;
       }
-      quadObject.setTranslateX(quadObject.getTranslateX() +
-                               (quadGoingLeft ? -0.025f : 0.025f));
+      cube.setTranslateX(cube.getTranslateX() +
+                         (quadGoingLeft ? -0.025f : 0.025f));
     });
     game.run("Digbuild", 0, 0);
     return 0;
