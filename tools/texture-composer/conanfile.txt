@@ -1,0 +1,5 @@
+[requires]
+lodepng/cci.20200615
+
+[generators]
+cmake
