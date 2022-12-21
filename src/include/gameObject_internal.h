@@ -7,7 +7,10 @@
 #include <seagull_internal.h>
 
 namespace seagull {
-struct GameObjectState {
+// We put this in a separate struct so it can be shared by multiple instances of
+// a template game object.
+struct GameObjectGeometry { // Also includes textures, but I can't think of a
+                            // better term.
   // If you don't know what a VAO or VBO is, you should read up on them before
   // reading the following code.
   unsigned vao;
@@ -19,6 +22,16 @@ struct GameObjectState {
   Mesh mesh;
   Texture texture;
 
+  ~GameObjectGeometry();
+
+  // We need this constructor because texture doesn't have a default one. This
+  // is a bit annoying.
+  GameObjectGeometry(Mesh mesh, Texture texture)
+      : mesh(std::move(mesh)), texture(std::move(texture)) {}
+};
+
+struct GameObjectState {
+  std::shared_ptr<GameObjectGeometry> geometry;
   // Caching these values has no downside, so we do that.
   Eigen::Matrix4f totalTransformationMatrix = Eigen::Matrix4f::Identity();
   Eigen::Matrix4f scaleMatrix = Eigen::Matrix4f::Identity();
@@ -39,11 +52,6 @@ struct GameObjectState {
   float scale = 1;
   Eigen::Vector3f rotation = Eigen::Vector3f::Zero();
   Eigen::Vector3f translation = Eigen::Vector3f::Zero();
-
-  // We need this constructor because texture doesn't have a default one. This
-  // is a bit annoying.
-  GameObjectState(Mesh mesh, Texture texture)
-      : mesh(std::move(mesh)), texture(std::move(texture)) {}
 };
 } // namespace seagull
 

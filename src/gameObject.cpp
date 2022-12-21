@@ -61,19 +61,22 @@ void buildBuffers(const Mesh &mesh, const Texture &texture, unsigned vertexVbo,
                indices.data(), GL_STATIC_DRAW);
 }
 
-GameObject::GameObject(TexturedMesh mesh)
-    : state(std::make_unique<GameObjectState>(std::move(mesh.mesh),
-                                              std::move(mesh.texture))) {
-  unsigned &vao = state->vao;
-  unsigned &vertexVbo = state->vertexVbo;
-  unsigned &indexVbo = state->indexVbo;
-  unsigned &textureVbo = state->textureVbo;
+GameObject::GameObject(TexturedMesh mesh) {
+  state = std::make_unique<GameObjectState>();
+  state->geometry = std::make_unique<GameObjectGeometry>(
+      std::move(mesh.mesh), std::move(mesh.texture));
+  auto &geometry = *state->geometry;
+  unsigned &vao = geometry.vao;
+  unsigned &vertexVbo = geometry.vertexVbo;
+  unsigned &indexVbo = geometry.indexVbo;
+  unsigned &textureVbo = geometry.textureVbo;
   glGenVertexArrays(1, &vao);
   glGenBuffers(1, &vertexVbo);
   glGenBuffers(1, &indexVbo);
   glGenBuffers(1, &textureVbo);
   glBindVertexArray(vao);
-  buildBuffers(state->mesh, state->texture, vertexVbo, textureVbo, indexVbo);
+  buildBuffers(geometry.mesh, geometry.texture, vertexVbo, textureVbo,
+               indexVbo);
   glBindBuffer(GL_ARRAY_BUFFER, vertexVbo);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
   glEnableVertexAttribArray(0);
@@ -89,10 +92,10 @@ GameObject::GameObject(TexturedMesh mesh)
   // usually set to the bottom of the image. For this reason, even though our
   // convention for laying out images is different to the OpenGL convention, it
   // really makes no difference.
-  unsigned &textureId = state->textureId;
+  unsigned &textureId = geometry.textureId;
   glGenTextures(1, &textureId);
   glBindTexture(GL_TEXTURE_2D, textureId);
-  const Image &image = state->texture.getImage();
+  const Image &image = geometry.texture.getImage();
   // This code will not work if the color struct has padding. This is because it
   // uploads the floats to the GPU as an array of floats, which means our color
   // struct must also be an array of floats (or equivalent to one).
@@ -108,17 +111,15 @@ GameObject::GameObject(TexturedMesh mesh)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
-GameObject::~GameObject() {
-  // Since we may be called from the destructor of a temporary, we have to check
-  // that the state is not null.
-  if (state) {
-    glDeleteVertexArrays(1, &state->vao);
-    glDeleteBuffers(1, &state->vertexVbo);
-    glDeleteBuffers(1, &state->indexVbo);
-    glDeleteBuffers(1, &state->textureVbo);
-    glDeleteTextures(1, &state->textureId);
-  }
+GameObjectGeometry::~GameObjectGeometry() {
+  glDeleteVertexArrays(1, &vao);
+  glDeleteBuffers(1, &vertexVbo);
+  glDeleteBuffers(1, &indexVbo);
+  glDeleteBuffers(1, &textureVbo);
+  glDeleteTextures(1, &textureId);
 }
+
+GameObject::~GameObject() = default;
 
 // All of the following recalculateXMatrices functions follow the same
 // structure:

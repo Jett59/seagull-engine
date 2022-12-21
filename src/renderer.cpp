@@ -4,12 +4,13 @@
 namespace seagull {
 void render(const GameObjectState &gameObject, const GameContext &gameContext,
             bool bindTexture) {
+  auto &geometry = *gameObject.geometry;
   if (bindTexture) {
-    glBindTexture(GL_TEXTURE_2D, gameObject.textureId);
+    glBindTexture(GL_TEXTURE_2D, geometry.textureId);
   }
-  glBindVertexArray(gameObject.vao);
+  glBindVertexArray(geometry.vao);
   glDrawElements(GL_TRIANGLES,
-                 gameObject.mesh.size() * 3 /* points per triangle */,
+                 geometry.mesh.size() * 3 /* points per triangle */,
                  GL_UNSIGNED_INT, nullptr);
   glBindVertexArray(0);
 }
