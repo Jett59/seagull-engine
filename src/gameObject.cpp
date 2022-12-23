@@ -91,7 +91,11 @@ GameObject::GameObject(TexturedMesh mesh) {
   // looks up the pixel value using the top row in the data as 0, and this is
   // usually set to the bottom of the image. For this reason, even though our
   // convention for laying out images is different to the OpenGL convention, it
-  // really makes no difference.
+  // really makes no difference. The relevant quote from the documentation is
+  // "The first element corresponds to the lower left corner of the texture
+  // image".
+  // Ref:
+  // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glTexImage2D.xhtml
   unsigned &textureId = geometry.textureId;
   glGenTextures(1, &textureId);
   glBindTexture(GL_TEXTURE_2D, textureId);
@@ -110,6 +114,9 @@ GameObject::GameObject(TexturedMesh mesh) {
                   GL_LINEAR_MIPMAP_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
+
+GameObject::GameObject(GameObjectState state)
+    : state(std::make_unique<GameObjectState>(std::move(state))) {}
 
 GameObjectGeometry::~GameObjectGeometry() {
   glDeleteVertexArrays(1, &vao);

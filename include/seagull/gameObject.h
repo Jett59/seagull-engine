@@ -16,7 +16,10 @@ class GameObject {
 private:
   std::unique_ptr<GameObjectState> state;
 
-  GameObject(TexturedMesh mesh); // Only visible to our friends
+  // The constructors are marked private so that only our friends (Game) are
+  // allowed to create instances of us.
+  GameObject(TexturedMesh mesh);
+  GameObject(GameObjectState state);
 
   friend class Game;
 

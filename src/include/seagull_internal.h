@@ -17,7 +17,8 @@ struct GameContext {
       shaders; // We don't want it to be initialized immediately.
 
   std::list<GameObject> gameObjects; // Must be std::list to avoid invalidating
-                                     // references all the time
+  std::list<GameObject> templateGameObjects;
+  // references all the time
   std::vector<std::function<void()>> updateFunctions;
 };
 } // namespace seagull

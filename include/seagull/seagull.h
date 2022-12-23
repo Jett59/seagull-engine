@@ -39,9 +39,23 @@ public:
    * of the other game objects.
    *
    * @param mesh the textured mesh which is used to create the game object
+   * @param addToScene whether or not to add the game object to the scene
+   * (otherwise it becomes a template)
    * @return the newly created GameObject
    */
-  GameObject &createGameObject(TexturedMesh mesh);
+  GameObject &createGameObject(TexturedMesh mesh, bool addToScene = true);
+
+  /**
+   * @brief duplicate a game object and add it to the scene
+   *
+   * @note any transformations performed on the original game object are
+   * retained in the new game object (I.E. they will both be in exactly the same
+   * position with the same rotation and scale and so forth).
+   *
+   * @param gameObject the game object to duplicate (may be a template)
+   * @return the new game object
+   */
+  GameObject &duplicateGameObject(const GameObject &originalGameObject);
 
   /**
    * @brief add a function to run every frame

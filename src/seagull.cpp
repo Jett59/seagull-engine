@@ -50,8 +50,18 @@ Game::~Game() {
   glfwSetErrorCallback(nullptr);
 }
 
-GameObject &Game::createGameObject(TexturedMesh mesh) {
-  gameContext->gameObjects.push_back(GameObject(std::move(mesh)));
+GameObject &Game::createGameObject(TexturedMesh mesh, bool addToScene) {
+  if (addToScene) {
+    gameContext->gameObjects.push_back(GameObject(std::move(mesh)));
+    return gameContext->gameObjects.back();
+  } else {
+    gameContext->templateGameObjects.push_back(GameObject(std::move(mesh)));
+    return gameContext->templateGameObjects.back();
+  }
+}
+
+GameObject &Game::duplicateGameObject(const GameObject &original) {
+  gameContext->gameObjects.push_back(GameObject(*original.state));
   return gameContext->gameObjects.back();
 }
 

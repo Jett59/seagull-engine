@@ -15,7 +15,7 @@ static TexturedMesh generateCubeMesh(Image image, CubeTextureType textureType) {
   mesh.addQuad({-1, -1, -1}, {1, -1, -1}, {1, 1, -1}, {-1, 1, -1}); // front
   mesh.addQuad({-1, -1, 1}, {-1, -1, 1}, {1, 1, 1}, {-1, 1, 1});    // back
   mesh.addQuad({-1, -1, -1}, {-1, -1, 1}, {-1, 1, 1}, {-1, 1, -1}); // left
-  mesh.addQuad({1, -1, -1}, {1, 1, -1}, {1, 1, 1}, {1, -1, 1});     // right
+  mesh.addQuad({1, -1, -1}, {1, -1, 1}, {1, 1, 1}, {1, 1, -1}); // left
   mesh.addQuad({-1, 1, -1}, {1, 1, -1}, {1, 1, 1}, {-1, 1, 1});     // top
   mesh.addQuad({-1, -1, -1}, {-1, -1, 1}, {1, -1, 1}, {1, -1, -1}); // bottom
   // Now we have to make a texture which matches the above cube (the sides have
@@ -82,34 +82,29 @@ static TexturedMesh generateCubeMesh(Image image, CubeTextureType textureType) {
 int main() {
   try {
     Game game;
-    auto &cube = game.createGameObject(generateCubeMesh(
-        loadPngImage("assets/grass.png"), CubeTextureType::TOP_BOTTOM_SIDES));
-    cube.setTranslateZ(5);
-    cube.setTranslateX(3);
-    cube.setRotateX(0.75);
-    cube.setRotateY(0.75);
-    bool quadGoingLeft = true;
+    auto &grassCubeTemplate = game.createGameObject(
+        generateCubeMesh(loadPngImage("assets/digbuild/grass.png"),
+                         CubeTextureType::TOP_BOTTOM_SIDES),
+        false);
+    grassCubeTemplate.setTranslateZ(5);
+    auto &grass1 = game.duplicateGameObject(grassCubeTemplate);
+    grass1.setTranslateX(2);
+    auto &grass2 = game.duplicateGameObject(grassCubeTemplate);
+    grass2.setTranslateX(-2);
     auto previousSecondStart = std::chrono::steady_clock::now();
     unsigned framesThisSecond = 0;
     game.addUpdateFunction([&]() {
-      framesThisSecond++;
       if (std::chrono::duration_cast<std::chrono::seconds>(
               std::chrono::steady_clock::now() - previousSecondStart)
               .count() >= 1) {
         std::cout << "FPS: " << framesThisSecond << std::endl;
         framesThisSecond = 0;
         previousSecondStart = std::chrono::steady_clock::now();
+      } else {
+        framesThisSecond++;
       }
-      /*quadObject.setRotateZ(quadObject.getRotateZ() +
-                            (quadGoingLeft ? -0.1f : 0.1f))*/
-      ;
-      if (quadGoingLeft && cube.getTranslateX() < -2) {
-        quadGoingLeft = false;
-      } else if (!quadGoingLeft && cube.getTranslateX() > 2) {
-        quadGoingLeft = true;
-      }
-      cube.setTranslateX(cube.getTranslateX() +
-                         (quadGoingLeft ? -0.025f : 0.025f));
+      grass1.setRotateY(grass1.getRotateY() + 0.01f);
+      grass2.setRotateY(grass2.getRotateY() - 0.01f);
     });
     game.run("Digbuild", 0, 0);
     return 0;
